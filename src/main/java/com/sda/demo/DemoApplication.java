@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner {
@@ -21,11 +24,20 @@ public class DemoApplication implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         Person me = new Person(null, "maniek", "maniek");
         Car toyota = new Car(null, "Toyota", "Carola", Colour.SILVER);
         toyota.setOwner(me);
         toyota.setNoName(new Radio("yamaha"));
         carRepository.save(toyota);
+
+        carRepository.findAll(PageRequest.of(0, 10))
+            .stream()
+            .forEach(car -> {
+                car.setColour(Colour.PINK);
+                System.out.println("my car: " + car);
+                car.getOwner().getMyCars().forEach(car1 -> System.out.println(car1));
+            });
     }
 }

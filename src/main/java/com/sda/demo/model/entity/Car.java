@@ -10,6 +10,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,9 +38,10 @@ public class Car {
     @Embedded
     private Radio noName;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
-    // domyślnie name = nazwa pola + "_ID"
-    @JoinColumn(name = "OWNER_FOREIGN_KEY_ID", referencedColumnName = "ID")
+    // Róbmy lepiej związki jednokierunkowe: owner -> OneToMany do swoich aut
+    // auta nie potrzebują znać swojego właściciela :) będzie mniej problemów z odczytem :P
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinColumn(name = "MY_OWNER_ID", referencedColumnName = "ID")
     private Person owner;
 
     public Car(Long id, String brand, String model, Colour colour) {
@@ -47,5 +49,17 @@ public class Car {
         this.brand = brand;
         this.model = model;
         this.colour = colour;
+    }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+            "id=" + id +
+            ", brand='" + brand + '\'' +
+            ", model='" + model + '\'' +
+            ", colour=" + colour +
+            ", noName=" + noName +
+            ", owner=" + owner +
+            '}';
     }
 }
